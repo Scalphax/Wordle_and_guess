@@ -13,7 +13,7 @@ func Game(maxTurn int, wordList []string) bool {
 	answer := wordList[randInt]
 	turn := 0
 	for turn < maxTurn {
-		var input []byte
+		var input []rune
 		fmt.Printf("[%d]Input your answer: ", turn+1)
 		fmt.Scanln(&input)
 		if valid := check(string(input), wordList); valid {
@@ -31,8 +31,9 @@ func Game(maxTurn int, wordList []string) bool {
 }
 
 func check(input string, wordList []string) bool {
-	if len(input) != 5 {
-		fmt.Printf("The input must be exactly 5 characters.\n")
+	wordLen := len(wordList[0])
+	if len(input) != wordLen {
+		fmt.Printf("The input must be exactly %d characters.\n", wordLen)
 		return false
 	}
 
@@ -53,11 +54,11 @@ func check(input string, wordList []string) bool {
 	return false
 }
 
-func compare(input string, listWord string) int {
-	for i := 0; i < 5; i++ {
-		if input[i] < listWord[i] {
+func compare(input string, wordList string) int {
+	for i := 0; i < len(wordList); i++ {
+		if input[i] < wordList[i] {
 			return -1
-		} else if input[i] > listWord[i] {
+		} else if input[i] > wordList[i] {
 			return 1
 		}
 	}
@@ -67,12 +68,13 @@ func compare(input string, listWord string) int {
 func checkAnswer(input string, answer string, charConfirmed *[26]int) bool {
 	var charCount [26]int
 	var correctCount = 0
-	for i := 0; i < 5; i++ {
+	wordLen := len(answer)
+	for i := 0; i < wordLen; i++ {
 		if input[i] != answer[i] {
 			charCount[answer[i]-'a']++
 		}
 	}
-	for i := 0; i < 5; i++ {
+	for i := 0; i < wordLen; i++ {
 		if input[i] == answer[i] {
 			fmt.Printf("\033[42m%c\033[0m", input[i])
 			charConfirmed[input[i]-'a'] = 3
@@ -102,7 +104,7 @@ func checkAnswer(input string, answer string, charConfirmed *[26]int) bool {
 		}
 	}
 	fmt.Printf("\n")
-	if correctCount == 5 {
+	if correctCount == wordLen {
 		return true
 	} else {
 		return false

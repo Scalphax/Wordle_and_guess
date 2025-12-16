@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"os"
 	"wordle/game"
+	"wordle/guess"
 )
 
 func main() {
-	f, _ := os.Open("word_list.txt")
+	f, _ := os.Open("wordle-answers-alphabetical.txt")
 	defer f.Close()
 
 	var wordList []string
@@ -17,6 +18,9 @@ func main() {
 	for scanner.Scan() {
 		wordList = append(wordList, scanner.Text())
 	}
+
+	guess.Guess(wordList)
+	return
 
 	var maxTurn = 5
 	print("Input max turn: ")
