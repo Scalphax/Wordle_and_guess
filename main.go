@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"wordle/game"
-	"wordle/guess"
 )
 
 func main() {
@@ -18,18 +17,21 @@ func main() {
 	for scanner.Scan() {
 		wordList = append(wordList, scanner.Text())
 	}
-
-	guess.Guess(wordList)
-	return
-
-	var maxTurn = 5
-	print("Input max turn: ")
-	_, err := fmt.Scanf("%d\n", &maxTurn)
-	if err != nil {
-		fmt.Printf("%v\n", err)
+	turnSum := 0
+	gameRound := 4000
+	for i := 0; i < gameRound; i++ {
+		turnSum += game.Auto(wordList)
 	}
+	fmt.Printf("avgTurn: %f", float32(turnSum)/float32(gameRound))
 
-	for {
-		game.Game(maxTurn, wordList)
-	}
+	//var maxTurn = 5
+	//print("Input max turn: ")
+	//_, err := fmt.Scanf("%d\n", &maxTurn)
+	//if err != nil {
+	//	fmt.Printf("%v\n", err)
+	//}
+	//
+	//for {
+	//	game.Game(maxTurn, wordList)
+	//}
 }

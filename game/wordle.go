@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"math/rand"
+	"wordle/guess"
 )
 
 func Game(maxTurn int, wordList []string) bool {
@@ -37,6 +38,35 @@ func Game(maxTurn int, wordList []string) bool {
 	}
 	fmt.Printf("Game over! The answer is: %s\n", answer)
 	return false
+}
+
+func Auto(wordList []string) int {
+	fmt.Printf("\nNew game\n")
+	var charConfirmed [26]int
+	randInt := rand.Intn(len(wordList))
+	answer := wordList[randInt]
+	//fmt.Printf("%s", answer)
+	turn := 0
+	charState := make([]byte, len(wordList[0]))
+	s := guess.NewSolver(wordList)
+	for {
+		turn++
+		input := s.MakeChoice(charState)
+		charState = checkAnswer(input, answer, &charConfirmed)
+		printCharState(charState, input)
+		//printCharConfirmed(&charConfirmed)
+		correct := true
+		for _, i := range charState {
+			if i != 3 {
+				correct = false
+				break
+			}
+		}
+		if correct {
+			fmt.Printf("Correct! Turns: %d\n", turn)
+			return turn
+		}
+	}
 }
 
 func check(input string, wordList []string) bool {

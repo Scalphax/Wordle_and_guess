@@ -2,17 +2,91 @@ package guess
 
 import (
 	"container/list"
-	"fmt"
 	"sort"
 )
 
-func Guess(wordList []string) {
+type Solver struct {
+	wordWeight *list.List
+	lastWord   string
+}
+
+func NewSolver(wordList []string) *Solver {
 	frequency := countFreq(wordList)
 	wordWeight := calcWeight(wordList, frequency)
-	for e := wordWeight.Front(); e != nil; e = e.Next() {
-		pair := e.Value.(kv)
-		fmt.Printf("%s: %d\n", pair.key, pair.value)
+	return &Solver{
+		wordWeight: wordWeight,
 	}
+}
+
+func (s *Solver) MakeChoice(charState []byte) string {
+	if s.lastWord != "" {
+		for i, char := range s.lastWord {
+			switch charState[i] {
+			case 3:
+				s.removeElemIndexNot(char, i)
+			case 2:
+				s.removeElemIndex(char, i)
+			case 1:
+				remove := true
+				for j, ch := range s.lastWord {
+					if ch == char && charState[j] != 1 {
+						remove = false
+					}
+				}
+				if remove {
+					s.removeElemContain(char)
+				} else {
+					s.removeElemIndex(char, i)
+				}
+			}
+		}
+	}
+	answer := s.wordWeight.Front().Value.(kv).key
+	s.lastWord = answer
+	return answer
+}
+
+func (s *Solver) removeElemContain(targetChar rune) {
+	for e := s.wordWeight.Front(); e != nil; {
+		next := e.Next()
+		word := e.Value.(kv).key
+		for _, char := range word {
+			if char == targetChar {
+				s.wordWeight.Remove(e)
+				break
+			}
+		}
+		e = next
+	}
+}
+
+func (s *Solver) removeElemIndex(targetChar rune, index int) {
+	for e := s.wordWeight.Front(); e != nil; {
+		next := e.Next()
+		word := e.Value.(kv).key
+		if rune(word[index]) == targetChar {
+			s.wordWeight.Remove(e)
+		}
+		e = next
+	}
+}
+
+func (s *Solver) removeElemIndexNot(targetChar rune, index int) {
+	for e := s.wordWeight.Front(); e != nil; {
+		next := e.Next()
+		word := e.Value.(kv).key
+		if rune(word[index]) != targetChar {
+			s.wordWeight.Remove(e)
+		}
+		e = next
+	}
+}
+
+func Guess(wordList []string) {
+	//for e := wordWeight.Front(); e != nil; e = e.Next() {
+	//	pair := e.Value.(kv)
+	//	fmt.Printf("%s: %d\n", pair.key, pair.value)
+	//}
 }
 
 type kv struct {
