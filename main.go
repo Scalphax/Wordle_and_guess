@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	f, _ := os.Open("2k_word_list.txt")
+	f, _ := os.Open("word_list.txt")
 	defer f.Close()
 
 	var wordList []string
