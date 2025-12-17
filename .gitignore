@@ -1,4 +1,4 @@
 .idea/*
 *.exe
-/18kword_list.txt
-/word_list.txt
+/18k_word_list.txt
+/13k_word_list.txt
