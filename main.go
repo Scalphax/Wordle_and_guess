@@ -22,7 +22,7 @@ func main() {
 	}
 	fmt.Printf("0.Play 1.Robot 2.Full word list benchmark 3+.Random benchmark(int for turn)\nSelect mode: ")
 	mode := 0
-	fmt.Scanf("%d", &mode)
+	fmt.Scanf("%d\n", &mode)
 
 	run(mode, wordList)
 }
