@@ -1,6 +1,8 @@
 package guessv2
 
-import "math"
+import (
+	"math"
+)
 
 type Solver struct {
 	wordList  []string
@@ -35,11 +37,14 @@ func (s *Solver) Reset() {
 }
 
 func (s *Solver) MakeChoice(charaState []byte) string {
+	if len(s.validList) == 1 {
+		return s.validList[0]
+	}
 	answer := "trace"
 	if s.lastWord != "" {
 		s.filterList(charaState)
 
-		var bestE float64
+		bestE := -1.0
 		for _, candidate := range s.validList {
 			E := s.calcE(candidate)
 			if E > bestE {
@@ -48,12 +53,13 @@ func (s *Solver) MakeChoice(charaState []byte) string {
 			}
 		}
 	}
+	s.lastWord = answer
 	return answer
 }
 
 func (s *Solver) calcE(candidate string) float64 {
 	// 统计不同结果频次
-	var counts [243]byte
+	var counts [364]byte
 	for _, word := range s.validList {
 		charaState := checkAnswer(candidate, word)
 		index := 0
@@ -64,9 +70,15 @@ func (s *Solver) calcE(candidate string) float64 {
 	}
 
 	var E float64
-	for _, count := range counts {
+	for i, count := range counts {
+		if i < 121 {
+			continue
+		}
 		p := float64(count) / float64(len(s.validList))
-		E += -p * math.Log2(p)
+		//fmt.Printf("%f\n", p)
+		if p > 0 {
+			E += -p * math.Log2(p)
+		}
 	}
 	return E
 }
@@ -78,8 +90,8 @@ func (s *Solver) filterList(charaState []byte) {
 			s.validList[k] = word
 			k++
 		}
-		s.validList = s.validList[:k]
 	}
+	s.validList = s.validList[:k]
 }
 
 func (s *Solver) matchState(candidate string, charaState []byte) bool {
