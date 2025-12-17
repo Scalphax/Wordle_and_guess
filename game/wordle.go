@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 	"math/rand"
-	"wordle/guess"
+	"wordle/guessv2"
 )
 
 func Game(maxTurn int, wordList []string) bool {
@@ -40,15 +40,13 @@ func Game(maxTurn int, wordList []string) bool {
 	return false
 }
 
-func Auto(wordList []string) int {
+func Auto(answer string, wordList []string) int {
 	fmt.Printf("\nNew game\n")
 	var charConfirmed [26]int
-	randInt := rand.Intn(len(wordList))
-	answer := wordList[randInt]
 	//fmt.Printf("%s", answer)
 	turn := 0
 	charState := make([]byte, len(wordList[0]))
-	s := guess.NewSolver(wordList)
+	s := guessv2.NewSolver(wordList)
 	for {
 		turn++
 		input := s.MakeChoice(charState)
@@ -105,8 +103,7 @@ func compare(input string, wordList string) int {
 }
 
 func checkAnswer(input string, answer string, charConfirmed *[26]int) []byte {
-	var charCount [26]int
-	var correctCount = 0
+	var charCount [26]byte
 	wordLen := len(answer)
 	charState := make([]byte, wordLen)
 	for i := 0; i < wordLen; i++ {
@@ -116,18 +113,14 @@ func checkAnswer(input string, answer string, charConfirmed *[26]int) []byte {
 	}
 	for i := 0; i < wordLen; i++ {
 		if input[i] == answer[i] {
-			//fmt.Printf("\033[42m%c\033[0m", input[i])
 			charState[i] = 3
 			charConfirmed[input[i]-'a'] = 3
-			correctCount++
 		} else {
 			if charCount[input[i]-'a'] > 0 {
 				charCount[input[i]-'a']--
-				//fmt.Printf("\033[43m%c\u001B[0m", input[i])
 				charState[i] = 2
 				charConfirmed[input[i]-'a'] = max(charConfirmed[input[i]-'a'], 2)
 			} else {
-				//fmt.Printf("\033[100m%c\u001B[0m", input[i])
 				charState[i] = 1
 				charConfirmed[input[i]-'a'] = max(charConfirmed[input[i]-'a'], 1)
 			}

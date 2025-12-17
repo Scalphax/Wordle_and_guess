@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"wordle/game"
+	"time"
+	"wordle/guessv2"
 )
 
 func main() {
-	f, _ := os.Open("wordle-answers-alphabetical.txt")
+	f, _ := os.Open("word_list.txt")
 	defer f.Close()
 
 	var wordList []string
@@ -18,11 +19,16 @@ func main() {
 		wordList = append(wordList, scanner.Text())
 	}
 	turnSum := 0
-	gameRound := 4000
-	for i := 0; i < gameRound; i++ {
-		turnSum += game.Auto(wordList)
-	}
-	fmt.Printf("avgTurn: %f", float32(turnSum)/float32(gameRound))
+	gameRound := len(wordList)
+	start := time.Now()
+	guessv2.NewSolver(wordList)
+	//for _, answer := range wordList {
+	//	//randInt := rand.Intn(len(wordList))
+	//	//answer := wordList[randInt]
+	//	turnSum += game.Auto(answer, wordList)
+	//}
+	time := time.Since(start)
+	fmt.Printf("avgTurn: %f, avgTime: %fs", float32(turnSum)/float32(gameRound), time.Seconds()/float64(gameRound))
 
 	//var maxTurn = 5
 	//print("Input max turn: ")
