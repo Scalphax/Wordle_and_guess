@@ -2,24 +2,33 @@ package main
 
 import (
 	"bufio"
+	_ "embed"
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 	"wordle/game"
 	"wordle/guessv2"
 )
 
+//go:embed 2k_word_list.txt
+var fileContent string
+
 func main() {
-	f, _ := os.Open("word_list.txt")
-	defer f.Close()
-
-	var wordList []string
-	scanner := bufio.NewScanner(f)
-
-	for scanner.Scan() {
-		wordList = append(wordList, scanner.Text())
+	wordList := strings.Split(strings.TrimSpace(fileContent), "\n")
+	f, err := os.Open("word_list.txt")
+	if err != nil {
+		fmt.Printf("word_list.txt not found, using embedded file.\n")
+	} else {
+		defer f.Close()
+		wordList = nil
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			wordList = append(wordList, scanner.Text())
+		}
 	}
+
 	fmt.Printf("0.Play 1.Robot 2.Full word list benchmark 3+.Random benchmark(int for turn)\nSelect mode: ")
 	mode := 0
 	fmt.Scanf("%d\n", &mode)
