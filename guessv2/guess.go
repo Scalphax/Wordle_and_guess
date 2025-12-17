@@ -8,12 +8,17 @@ type Solver struct {
 	wordList  []string
 	validList []string
 	powConst  []int
-	wordLen   int
 	lastWord  string
+	firstWord string
 }
 
+const (
+	CORRECT = 2
+	HAS     = 1
+	NONE    = 0
+)
+
 func NewSolver(wordList []string) *Solver {
-	validList := make([]string, len(wordList))
 	wordLen := len(wordList[0])
 	powConst := make([]int, wordLen)
 
@@ -21,18 +26,33 @@ func NewSolver(wordList []string) *Solver {
 		powConst[i] = int(math.Pow(3, float64(i)))
 	}
 	s := Solver{
-		wordList:  wordList,
-		validList: validList,
-		powConst:  powConst,
-		wordLen:   wordLen,
-		lastWord:  "",
+		wordList: wordList,
+		powConst: powConst,
+		lastWord: "",
 	}
 	s.Reset()
+	s.setFirstWord()
 	return &s
 }
 
+func (s *Solver) setFirstWord() {
+	bestE := -1.0
+	bestWord := ""
+
+	for _, candidate := range s.validList {
+		E := s.calcE(candidate)
+		if E > bestE {
+			bestE = E
+			bestWord = candidate
+		}
+	}
+	s.firstWord = bestWord
+}
+
 func (s *Solver) Reset() {
-	copy(s.validList, s.wordList)
+	validList := make([]string, len(s.wordList))
+	copy(validList, s.wordList)
+	s.validList = validList
 	s.lastWord = ""
 }
 
@@ -40,7 +60,7 @@ func (s *Solver) MakeChoice(charaState []byte) string {
 	if len(s.validList) == 1 {
 		return s.validList[0]
 	}
-	answer := "trace"
+	answer := s.firstWord
 	if s.lastWord != "" {
 		s.filterList(charaState)
 
@@ -59,21 +79,22 @@ func (s *Solver) MakeChoice(charaState []byte) string {
 
 func (s *Solver) calcE(candidate string) float64 {
 	// 统计不同结果频次
-	var counts [364]byte
+	wordLen := len(s.wordList[0])
+	counts := make([]byte, s.powConst[wordLen-1]*3)
 	for _, word := range s.validList {
 		charaState := checkAnswer(candidate, word)
 		index := 0
 		for i, state := range charaState {
-			index += int(state) * s.powConst[s.wordLen-i-1]
+			index += int(state) * s.powConst[wordLen-i-1]
 		}
 		counts[index]++
 	}
 
 	var E float64
-	for i, count := range counts {
-		if i < 121 {
-			continue
-		}
+	for _, count := range counts {
+		//if i < 121 {
+		//	continue
+		//}
 		p := float64(count) / float64(len(s.validList))
 		//fmt.Printf("%f\n", p)
 		if p > 0 {
@@ -115,13 +136,13 @@ func checkAnswer(input string, answer string) []byte {
 	}
 	for i := 0; i < wordLen; i++ {
 		if input[i] == answer[i] {
-			charState[i] = 3
+			charState[i] = CORRECT
 		} else {
 			if charCount[input[i]-'a'] > 0 {
 				charCount[input[i]-'a']--
-				charState[i] = 2
+				charState[i] = HAS
 			} else {
-				charState[i] = 1
+				charState[i] = NONE
 			}
 		}
 	}

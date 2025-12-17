@@ -7,6 +7,12 @@ import (
 	"wordle/guessv2"
 )
 
+const (
+	CORRECT = 2
+	HAS     = 1
+	NONE    = 0
+)
+
 func Game(maxTurn int, wordList []string) bool {
 	fmt.Printf("\nNew game\n")
 	var charConfirmed [26]int
@@ -40,13 +46,13 @@ func Game(maxTurn int, wordList []string) bool {
 	return false
 }
 
-func Auto(answer string, wordList []string) int {
+func Auto(answer string, wordList []string, s *guessv2.Solver) int {
 	fmt.Printf("\nNew game\n")
 	var charConfirmed [26]int
 	//fmt.Printf("%s", answer)
 	turn := 0
 	charState := make([]byte, len(wordList[0]))
-	s := guessv2.NewSolver(wordList)
+	s.Reset()
 	for {
 		turn++
 		input := s.MakeChoice(charState)
@@ -55,7 +61,7 @@ func Auto(answer string, wordList []string) int {
 		//printCharConfirmed(&charConfirmed)
 		correct := true
 		for _, i := range charState {
-			if i != 3 {
+			if i != CORRECT {
 				correct = false
 				break
 			}
@@ -113,15 +119,15 @@ func checkAnswer(input string, answer string, charConfirmed *[26]int) []byte {
 	}
 	for i := 0; i < wordLen; i++ {
 		if input[i] == answer[i] {
-			charState[i] = 3
+			charState[i] = CORRECT
 			charConfirmed[input[i]-'a'] = 3
 		} else {
 			if charCount[input[i]-'a'] > 0 {
 				charCount[input[i]-'a']--
-				charState[i] = 2
+				charState[i] = HAS
 				charConfirmed[input[i]-'a'] = max(charConfirmed[input[i]-'a'], 2)
 			} else {
-				charState[i] = 1
+				charState[i] = NONE
 				charConfirmed[input[i]-'a'] = max(charConfirmed[input[i]-'a'], 1)
 			}
 		}
@@ -132,11 +138,11 @@ func checkAnswer(input string, answer string, charConfirmed *[26]int) []byte {
 func printCharState(charState []byte, word string) {
 	for i, char := range word {
 		switch charState[i] {
-		case 1:
+		case NONE:
 			fmt.Printf("\033[100m%c\u001B[0m", char)
-		case 2:
+		case HAS:
 			fmt.Printf("\033[43m%c\u001B[0m", char)
-		case 3:
+		case CORRECT:
 			fmt.Printf("\033[42m%c\033[0m", char)
 		}
 	}
