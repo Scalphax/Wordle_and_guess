@@ -18,7 +18,7 @@ func Game(maxTurn int, wordList []string) bool {
 	var charConfirmed [26]int
 	randInt := rand.Intn(len(wordList))
 	answer := wordList[randInt]
-	fmt.Printf("%s", answer)
+	//fmt.Printf("%s", answer)
 	turn := 0
 	for turn < maxTurn {
 		var input string
@@ -31,7 +31,7 @@ func Game(maxTurn int, wordList []string) bool {
 			printCharConfirmed(&charConfirmed)
 			correct := true
 			for _, i := range charState {
-				if i != 3 {
+				if i != CORRECT {
 					correct = false
 					break
 				}

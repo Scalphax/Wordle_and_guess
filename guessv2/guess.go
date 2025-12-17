@@ -1,6 +1,7 @@
 package guessv2
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -36,6 +37,7 @@ func NewSolver(wordList []string) *Solver {
 }
 
 func (s *Solver) setFirstWord() {
+	fmt.Printf("Finding first word...\n")
 	bestE := -1.0
 	bestWord := ""
 
@@ -47,6 +49,7 @@ func (s *Solver) setFirstWord() {
 		}
 	}
 	s.firstWord = bestWord
+	fmt.Printf("Found first word: %s\n", bestWord)
 }
 
 func (s *Solver) Reset() {
